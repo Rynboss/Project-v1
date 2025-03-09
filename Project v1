@@ -1,0 +1,401 @@
+<html lang="en">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>Love Confirmation App</title>  
+    <script src="https://cdn.tailwindcss.com"></script>  
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"></link>  
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">  
+    <style>  
+        body {  
+            font-family: 'Pacifico', cursive;  
+        }  
+        .hidden {  
+            display: none;  
+        }  
+        .confetti {  
+            position: fixed;  
+            top: 0;  
+            left: 0;  
+            width: 100%;  
+            height: 100%;  
+            pointer-events: none;  
+            z-index: 9999;  
+        }  
+        .confetti-piece {  
+            position: absolute;  
+            width: 10px;  
+            height: 10px;  
+            background-color: #ff0;  
+            animation: confetti-fall 3s linear infinite;  
+        }  
+        @keyframes confetti-fall {  
+            0% { transform: translateY(0) rotate(0); }  
+            100% { transform: translateY(100vh) rotate(360deg); }  
+        }  
+        .heart {  
+            animation: pulse 1s infinite;  
+        }  
+        @keyframes pulse {  
+            0% { transform: scale(1); }  
+            50% { transform: scale(1.1); }  
+            100% { transform: scale(1); }  
+        }  
+    </style>  
+</head>  
+<body class="bg-pink-100 flex items-center justify-center min-h-screen">  
+    <div id="app" class="text-center">  
+        <!-- Step 1: Name Input Page -->  
+        <div id="step1" class="space-y-4">  
+            <h1 class="text-3xl">Enter your name</h1>  
+            <input id="nameInput" type="text" class="border-2 border-pink-500 rounded p-2">  
+            <button onclick="checkName()" class="bg-pink-500 text-white px-4 py-2 rounded">Submit</button>  
+            <p id="nameError" class="text-red-500 hidden">Sorry, you're not the right person.</p>  
+        </div>  <!-- Step 2: Love Confirmation -->  
+    <div id="step2" class="hidden space-y-4">  
+        <h1 class="text-3xl">Do you love Raiyan?</h1>  
+        <div class="space-x-4">  
+            <button id="yesButton" onclick="loveYes()" class="bg-pink-500 text-white px-4 py-2 rounded">Yes</button>  
+            <button id="noButton" onclick="loveNo()" class="bg-pink-500 text-white px-4 py-2 rounded">No</button>  
+        </div>  
+    </div>  
+
+    <!-- Step 3: Love Promise -->  
+    <div id="step3" class="hidden space-y-4">  
+        <h1 class="text-3xl">Do you promise to love him forever?</h1>  
+        <div class="space-x-4">  
+            <button onclick="promiseYes()" class="bg-pink-500 text-white px-4 py-2 rounded">Yes</button>  
+            <button id="promiseNoButton" onclick="promiseNo()" class="bg-pink-500 text-white px-4 py-2 rounded">No</button>  
+        </div>  
+    </div>  
+
+    <!-- Step 4: Love Scale -->  
+    <div id="step4" class="hidden space-y-4">  
+        <h1 class="text-3xl">How much do you love him?</h1>  
+        <input id="loveScale" type="range" min="1" max="5" class="w-full">  
+        <p id="loveScaleText" class="text-xl"></p>  
+        <button onclick="nextStep()" class="bg-pink-500 text-white px-4 py-2 rounded">Next</button>  
+    </div>  
+
+    <!-- Step 5: Miss Scale -->  
+    <div id="step5" class="hidden space-y-4">  
+        <h1 class="text-3xl">How much do you miss Raiyan when he's not around?</h1>  
+        <div class="space-y-2">  
+            <button onclick="missRaiyan('A little')" class="bg-pink-500 text-white px-4 py-2 rounded">A little</button>  
+            <button onclick="missRaiyan('Sometimes')" class="bg-pink-500 text-white px-4 py-2 rounded">Sometimes</button>  
+            <button onclick="missRaiyan('All the time')" class="bg-pink-500 text-white px-4 py-2 rounded">All the time</button>  
+            <button onclick="missRaiyan('I can\'t live without him')" class="bg-pink-500 text-white px-4 py-2 rounded">I can't live without him</button>  
+        </div>  
+        <p id="missRaiyanText" class="text-xl"></p>  
+        <button id="nextButton" onclick="nextStepAfterMiss()" class="bg-pink-500 text-white px-4 py-2 rounded hidden">Next</button>  
+    </div>  
+
+    <!-- Step 6: What do you love the most about Raiyan? -->  
+    <div id="step6" class="hidden space-y-4">  
+        <h1 class="text-3xl">What do you love the most about Raiyan?</h1>  
+        <textarea id="loveMost" class="border-2 border-pink-500 rounded p-2 w-full h-24"></textarea>  
+        <p id="loveMostError" class="text-red-500 hidden">Come on, you must have something to say!</p>  
+        <button onclick="nextStepAfterLoveMost()" class="bg-pink-500 text-white px-4 py-2 rounded">Next</button>  
+    </div>  
+
+    <!-- Step 7: Describe Raiyan in one word -->  
+    <div id="step7" class="hidden space-y-4">  
+        <h1 class="text-3xl">If you could describe Raiyan in one word, what would it be?</h1>  
+        <input id="describeRaiyan" type="text" class="border-2 border-pink-500 rounded p-2">  
+        <button onclick="nextStepAfterDescribe()" class="bg-pink-500 text-white px-4 py-2 rounded">Next</button>  
+        <p id="describeResponse" class="text-xl hidden">Aww, that's so sweet!</p>  
+    </div>  
+
+    <!-- Step 8: Choose Raiyan over chocolates -->  
+    <div id="step8" class="hidden space-y-4">  
+        <h1 class="text-3xl">Would you choose Raiyan over unlimited chocolates?</h1>  
+        <div class="space-x-4">  
+            <button onclick="chooseRaiyanYes()" class="bg-pink-500 text-white px-4 py-2 rounded">Yes</button>  
+            <button id="chooseChocolateButton" onclick="chooseChocolate()" class="bg-pink-500 text-white px-4 py-2 rounded">Hmm... chocolate is tempting</button>  
+        </div>  
+        <p id="chooseRaiyanText" class="text-red-500 hidden">No way! Choose again!</p>  
+    </div>  
+
+    <!-- Step 9: Excitement for the future -->  
+    <div id="step9" class="hidden space-y-4">  
+        <h1 class="text-3xl">How excited are you for our future together?</h1>  
+        <input id="excitementScale" type="range" min="1" max="10" class="w-full">  
+        <p id="excitementText" class="text-xl"></p>  
+        <button onclick="nextStepAfterExcitement()" class="bg-pink-500 text-white px-4 py-2 rounded">Next</button>  
+    </div>  
+
+    <!-- Step 10: Hug Raiyan as a teddy bear -->  
+    <div id="step10" class="hidden space-y-4">  
+        <h1 class="text-3xl">If Raiyan was a teddy bear, would you hug him every night?</h1>  
+        <div class="space-x-4">  
+            <button onclick="hugYes()" class="bg-pink-500 text-white px-4 py-2 rounded">Of course!</button>  
+            <button onclick="hugMaybe()" class="bg-pink-500 text-white px-4 py-2 rounded">Maybe...</button>  
+        </div>  
+        <p id="hugResponse" class="text-xl hidden">That's the right answer!</p>  
+    </div>  
+
+    <!-- Step 11: Best boyfriend in the world -->  
+    <div id="step11" class="hidden space-y-4">  
+        <h1 class="text-3xl">Do you believe Raiyan is the best boyfriend in the world?</h1>  
+        <div class="space-x-4">  
+            <button id="bestBoyfriendYes" onclick="bestBoyfriendYes()" class="bg-pink-500 text-white px-4 py-2 rounded">Yes</button>  
+            <button id="bestBoyfriendNo" onclick="bestBoyfriendNo()" class="bg-pink-500 text-white px-4 py-2 rounded">No</button>  
+        </div>  
+        <p id="bestBoyfriendResponse" class="text-xl hidden">You're the best girlfriend!</p>  
+    </div>  
+
+    <!-- Step 12: Theme song -->  
+    <div id="step12" class="hidden space-y-4">  
+        <h1 class="text-3xl">If we had a theme song, what would it be?</h1>  
+        <input id="themeSong" type="text" class="border-2 border-pink-500 rounded p-2">  
+        <button onclick="nextStepAfterThemeSong()" class="bg-pink-500 text-white px-4 py-2 rounded">Next</button>  
+        <p id="themeSongResponse" class="text-xl hidden">Great choice! I'll add it to our playlist!</p>  
+    </div>  
+
+    <!-- Step 13: Nickname -->  
+    <div id="step13" class="hidden space-y-4">  
+        <h1 class="text-3xl">What nickname should I give you?</h1>  
+        <input id="nickname" type="text" class="border-2 border-pink-500 rounded p-2">  
+        <button onclick="nextStepAfterNickname()" class="bg-pink-500 text-white px-4 py-2 rounded">Next</button>  
+        <p id="nicknameResponse" class="text-xl hidden">From now on, I'll call you <span id="nicknameValue"></span>!</p>  
+    </div>  
+
+    <!-- Step 14: Lifetime of love -->  
+    <div id="step14" class="hidden space-y-4">  
+        <h1 class="text-3xl">Are you ready for a lifetime of love with Raiyan?</h1>  
+        <div class="space-x-4">  
+            <button onclick="lifetimeYes()" class="bg-pink-500 text-white px-4 py-2 rounded">Yes</button>  
+            <button id="lifetimeNoButton" onclick="lifetimeNo()" class="bg-pink-500 text-white px-4 py-2 rounded">No</button>  
+        </div>  
+        <p id="lifetimeResponse" class="text-xl hidden">Me too! Forever and always!</p>  
+    </div>  
+
+    <!-- Step 15: Final Surprise -->  
+    <div id="step15" class="hidden space-y-4">  
+        <div class="flex justify-center items-center">  
+            <div class="heart bg-red-500 text-white text-3xl p-10 rounded-full">  
+                ❤ Good Girl! ❤  
+            </div>  
+        </div>  
+        <button onclick="goHome()" class="bg-pink-500 text-white px-4 py-2 rounded">Home</button>  
+    </div>  
+</div>  
+
+<div id="confetti" class="confetti hidden"></div>  
+
+<script>  
+    function checkName() {  
+        const name = document.getElementById('nameInput').value;  
+        if (name === "Vhumi" || name === "Anjum Afra Nadia" || name === "Anjum Afra") {  
+            document.getElementById('step1').classList.add('hidden');  
+            document.getElementById('step2').classList.remove('hidden');  
+        } else {  
+            document.getElementById('nameError').classList.remove('hidden');  
+        }  
+    }  
+
+    function loveYes() {  
+        document.getElementById('step2').classList.add('hidden');  
+        document.getElementById('step3').classList.remove('hidden');  
+    }  
+
+    function loveNo() {  
+        const yesButton = document.getElementById('yesButton');  
+        yesButton.style.width = (yesButton.offsetWidth + 10) + 'px';  
+        yesButton.style.height = (yesButton.offsetHeight + 10) + 'px';  
+        if (yesButton.offsetWidth >= window.innerWidth) {  
+            loveYes();  
+        }  
+    }  
+
+    function promiseYes() {  
+        document.getElementById('step3').classList.add('hidden');  
+        document.getElementById('step4').classList.remove('hidden');  
+        triggerConfetti();  
+    }  
+
+    function promiseNo() {  
+        document.getElementById('promiseNoButton').classList.add('hidden');  
+    }  
+
+    function nextStep() {  
+        const loveScale = document.getElementById('loveScale').value;  
+        if (loveScale == 5) {  
+            document.getElementById('step4').classList.add('hidden');  
+            document.getElementById('step5').classList.remove('hidden');  
+        } else {  
+            document.getElementById('loveScaleText').innerText = "Are you sure you don't love him more?";  
+        }  
+    }  
+
+    function missRaiyan(option) {  
+        if (option === "I can't live without him") {  
+            document.getElementById('missRaiyanText').innerText = "";  
+            document.getElementById('nextButton').classList.remove('hidden');  
+        } else {  
+            document.getElementById('missRaiyanText').innerText = "Really? Are you sure it's not more?";  
+            document.getElementById('nextButton').classList.add('hidden');  
+        }  
+    }  
+
+    function nextStepAfterMiss() {  
+        document.getElementById('step5').classList.add('hidden');  
+        document.getElementById('step6').classList.remove('hidden');  
+    }  
+
+    function nextStepAfterLoveMost() {  
+        const loveMost = document.getElementById('loveMost').value.trim();  
+        if (loveMost === "") {  
+            document.getElementById('loveMostError').classList.remove('hidden');  
+        } else {  
+            document.getElementById('step6').classList.add('hidden');  
+            document.getElementById('step7').classList.remove('hidden');  
+        }  
+    }  
+
+    function nextStepAfterDescribe() {  
+        const describeRaiyan = document.getElementById('describeRaiyan').value.trim();  
+        if (describeRaiyan !== "") {  
+            document.getElementById('describeResponse').classList.remove('hidden');  
+            setTimeout(() => {  
+                document.getElementById('step7').classList.add('hidden');  
+                document.getElementById('step8').classList.remove('hidden');  
+            }, 2000);  
+        }  
+    }  
+
+    function chooseRaiyanYes() {  
+        document.getElementById('step8').classList.add('hidden');  
+        document.getElementById('step9').classList.remove('hidden');  
+    }  
+
+    function chooseChocolate() {  
+        document.getElementById('chooseRaiyanText').classList.remove('hidden');  
+    }  
+
+    function nextStepAfterExcitement() {  
+        const excitement = document.getElementById('excitementScale').value;  
+        if (excitement < 8) {  
+            document.getElementById('excitementText').innerText = "Come on, I know you're more excited than that!";  
+        } else if (excitement == 10) {  
+            document.getElementById('excitementText').innerText = "That's my girl!";  
+            setTimeout(() => {  
+                document.getElementById('step9').classList.add('hidden');  
+                document.getElementById('step10').classList.remove('hidden');  
+            }, 2000);  
+        }  
+    }  
+
+    function hugYes() {  
+        document.getElementById('hugResponse').classList.remove('hidden');  
+        setTimeout(() => {  
+            document.getElementById('step10').classList.add('hidden');  
+            document.getElementById('step11').classList.remove('hidden');  
+        }, 2000);  
+    }  
+
+    function hugMaybe() {  
+        document.getElementById('hugResponse').innerText = "Only 'Of course!' is acceptable!";  
+        document.getElementById('hugResponse').classList.remove('hidden');  
+    }  
+
+    function bestBoyfriendYes() {  
+        document.getElementById('bestBoyfriendResponse').classList.remove('hidden');  
+        setTimeout(() => {  
+            document.getElementById('step11').classList.add('hidden');  
+            document.getElementById('step12').classList.remove('hidden');  
+        }, 2000);  
+    }  
+
+    function bestBoyfriendNo() {  
+        const yesButton = document.getElementById('bestBoyfriendYes');  
+        yesButton.style.width = (yesButton.offsetWidth + 10) + 'px';  
+        yesButton.style.height = (yesButton.offsetHeight + 10) + 'px';  
+        if (yesButton.offsetWidth >= window.innerWidth) {  
+            bestBoyfriendYes();  
+        }  
+    }  
+
+    function nextStepAfterThemeSong() {  
+        const themeSong = document.getElementById('themeSong').value.trim();  
+        if (themeSong !== "") {  
+            document.getElementById('themeSongResponse').classList.remove('hidden');  
+            setTimeout(() => {  
+                document.getElementById('step12').classList.add('hidden');  
+                document.getElementById('step13').classList.remove('hidden');  
+            }, 2000);  
+        }  
+    }  
+
+    function nextStepAfterNickname() {  
+        const nickname = document.getElementById('nickname').value.trim();  
+        if (nickname !== "") {  
+            document.getElementById('nicknameValue').innerText = nickname;  
+            document.getElementById('nicknameResponse').classList.remove('hidden');  
+            setTimeout(() => {  
+                document.getElementById('step13').classList.add('hidden');  
+                document.getElementById('step14').classList.remove('hidden');  
+            }, 2000);  
+        }  
+    }  
+
+    function lifetimeYes() {  
+        document.getElementById('lifetimeResponse').classList.remove('hidden');  
+        setTimeout(() => {  
+            document.getElementById('step14').classList.add('hidden');  
+            document.getElementById('step15').classList.remove('hidden');  
+        }, 2000);  
+    }  
+
+    function lifetimeNo() {  
+        document.getElementById('lifetimeNoButton').classList.add('hidden');  
+    }  
+
+    function goHome() {  
+        document.getElementById('step15').classList.add('hidden');  
+        document.getElementById('step1').classList.remove('hidden');  
+        document.getElementById('nameInput').value = '';  
+        document.getElementById('nameError').classList.add('hidden');  
+        document.getElementById('yesButton').style.width = '';  
+        document.getElementById('yesButton').style.height = '';  
+        document.getElementById('promiseNoButton').classList.remove('hidden');  
+        document.getElementById('loveScale').value = 1;  
+        document.getElementById('loveScaleText').innerText = '';  
+        document.getElementById('missRaiyanText').innerText = '';  
+        document.getElementById('nextButton').classList.add('hidden');  
+        document.getElementById('loveMost').value = '';  
+        document.getElementById('loveMostError').classList.add('hidden');  
+        document.getElementById('describeRaiyan').value = '';  
+        document.getElementById('describeResponse').classList.add('hidden');  
+        document.getElementById('chooseRaiyanText').classList.add('hidden');  
+        document.getElementById('excitementScale').value = 1;  
+        document.getElementById('excitementText').innerText = '';  
+        document.getElementById('hugResponse').classList.add('hidden');  
+        document.getElementById('bestBoyfriendResponse').classList.add('hidden');  
+        document.getElementById('themeSong').value = '';  
+        document.getElementById('themeSongResponse').classList.add('hidden');  
+        document.getElementById('nickname').value = '';  
+        document.getElementById('nicknameResponse').classList.add('hidden');  
+        document.getElementById('lifetimeNoButton').classList.remove('hidden');  
+        document.getElementById('lifetimeResponse').classList.add('hidden');  
+    }  
+
+    function triggerConfetti() {  
+        const confetti = document.getElementById('confetti');  
+        confetti.classList.remove('hidden');  
+        for (let i = 0; i < 100; i++) {  
+            const piece = document.createElement('div');  
+            piece.classList.add('confetti-piece');  
+            piece.style.left = Math.random() * 100 + 'vw';  
+            piece.style.backgroundColor = hsl(${Math.random() * 360}, 100%, 50%);  
+            confetti.appendChild(piece);  
+        }  
+        setTimeout(() => {  
+            confetti.classList.add('hidden');  
+            confetti.innerHTML = '';  
+        }, 3000);  
+    }  
+</script>
+
+</body>  
+</html>
